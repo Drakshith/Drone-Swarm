@@ -1,0 +1,1 @@
+ var myLatLng = { lat: 17.397330, lng: 78.49 };

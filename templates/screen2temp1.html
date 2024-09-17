@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Google Maps Draw Polygon and Markers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 60px 0 0;
+            background-color: #f4f4f4;
+            display: flex;
+        }
+
+        .container-fluid {
+            display: flex;
+            flex: 1;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #333;
+            overflow: hidden;
+        }
+
+        .navbar a {
+            float: right;
+            font-size: 16px;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .navbar .icon {
+            display: none;
+            font-size: 30px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .drone-swarm {
+            float: left;
+            color: white;
+            padding: 14px 16px;
+        }
+
+        .map-container {
+            flex: 1;
+            height: 100%;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+
+        .events-container {
+            flex: 0.6;
+            height: 100vh;
+            padding: 20px;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+
+        .events-container h4 {
+            color: #428bca;
+        }
+
+        #map-canvas {
+            height: 100%;
+            width: 100%;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #mission-data-container {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        #mission-data-container h4 {
+            font-size: 24px;
+            color: #428bca;
+            margin-bottom: 10px;
+        }
+
+        #mission-data-container ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #mission-data-container li {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .button-container button {
+            background-color: #428bca;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px 10px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .button-container button:hover {
+            background-color: #357ebd;
+        }
+
+        .formatted-info {
+            margin-top: 10px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .formatted-info ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .formatted-info li {
+            margin-bottom: 5px;
+        }
+
+        /* Add responsive navigation styles */
+        @media screen and (max-width: 600px) {
+            .navbar a {
+                display: none;
+            }
+
+            .navbar a.icon {
+                display: block;
+            }
+
+            .navbar.responsive {
+                position: relative;
+            }
+
+            .navbar.responsive .icon {
+                position: absolute;
+                top: 0;
+                right: 0;
+            }
+
+            .navbar.responsive a {
+                float: none;
+                display: block;
+                text-align: left;
+            }
+
+            .container-fluid {
+                display: flex;
+                flex-direction: row;
+                height: 100vh;
+            }
+
+            .map-container {
+                flex: 0.6;
+                margin: 10px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+
+            .events-container {
+                flex: 0.4;
+                padding: 20px;
+                background-color: #fff;
+            }
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+
+<body>
+  <div class="container-fluid">
+      <div class="navbar" id="navbar">
+          <!-- Existing navigation bar code -->
+          <span class="drone-swarm">Drone Swarm</span>
+          <a href="#">Contact Us</a>
+          <a href="#">Services</a>
+          <a href="#">About Us</a>
+          <a href="screen1.html">Home</a>
+          <a class="icon" onclick="toggleNavbar()">&#9776;</a>
+      </div>
+      <div class="map-container">
+          <h2 class="mission-heading">Mission Planner</h2>
+          <div id="map-canvas"></div>
+      </div>
+      <div class="events-container" id="mission-data-container">
+          <button id="saveMarkerPositionsButton" onclick="saveAndClearMarkers()">Save & Clear Markers</button>
+          <div id="arrayDisplay"></div>
+      </div>
+      <div class="button-container" id="formationButtonsContainer"></div>
+  </div>
+
+  <!-- JavaScript code -->
+  <script>
+      let map;
+      let drawingManager;
+      let geofenceCreated = false;
+      let queryParams = {};
+      let geofenceCoordinates = [];
+      let numberOfDrones = 10; // Set the initial number of drones
+      let selectedFormation = null;
+      let mat = [];
+      let formationMarkers = {};
+      let markersPlaced = {}; // Object to track the number of markers placed for each formation
+
+      function toggleNavbar() {
+          // Existing code for toggling the navigation bar
+          var x = document.getElementById('navbar');
+          if (x.className === 'navbar') {
+              x.className += ' responsive';
+          } else {
+              x.className = 'navbar';
+          }
+      }
+
+      function getQueryParams() {
+          // Existing code to get URL parameters
+          var queryParams = {};
+          var queryString = window.location.search;
+          var urlParams = new URLSearchParams(queryString);
+          queryParams.drones = urlParams.get('drones');
+          queryParams.formations = urlParams.get('formations');
+          return queryParams;
+      }
+
+      function displayMissionData() {
+          // Existing code to display mission data
+          if (queryParams.drones && queryParams.formations) {
+              var missionDataContainer = document.getElementById('mission-data-container');
+              var missionDataHeading = document.createElement('h4');
+              missionDataHeading.textContent = 'Mission Data';
+
+              var missionDataDiv = document.createElement('div');
+              missionDataDiv.className = 'formatted-info';
+
+              var missionDataList = document.createElement('ul');
+
+              var dronesListItem = document.createElement('li');
+              dronesListItem.textContent = 'Number of Drones: ' + queryParams.drones;
+              var formationsListItem = document.createElement('li');
+              formationsListItem.textContent = 'Number of Formations: ' + queryParams.formations;
+
+              missionDataList.appendChild(dronesListItem);
+              missionDataList.appendChild(formationsListItem);
+
+              missionDataDiv.appendChild(missionDataList);
+              missionDataContainer.appendChild(missionDataHeading);
+              missionDataContainer.appendChild(missionDataDiv);
+          }
+      }
+
+      function addFormationButtons(numberOfFormations) {
+          // Existing code to add formation buttons
+          const buttonsContainer = document.getElementById('formationButtonsContainer');
+          for (let i = 1; i <= numberOfFormations; i++) {
+              const formationButton = document.createElement('button');
+              formationButton.textContent = `Formation ${i}`;
+              formationButton.className = 'formation-buttons';
+
+              formationButton.addEventListener('click', function () {
+                  handleFormationButtonClick(`Formation ${i}`);
+              });
+
+              buttonsContainer.appendChild(formationButton);
+          }
+      }
+
+      function handleFormationButtonClick(formation) {
+          // Existing code to handle formation button click
+          selectedFormation = formation;
+          const markersForFormation = formationMarkers[selectedFormation];
+
+          // Clear existing markers on the map
+          clearMarkers();
+
+          // Display markers for the selected formation
+          if (markersForFormation) {
+              markersForFormation.forEach(marker => {
+                  marker.setMap(map);
+              });
+          }
+      }
+
+      function initMap() {
+          // Existing code to initialize the map
+          var myLatLng = { lat: 17.397330, lng: 78.49 };
+          map = new google.maps.Map(document.getElementById('map-canvas'), {
+              center: myLatLng,
+              zoom: 12
+          });
+
+          drawingManager = new google.maps.drawing.DrawingManager({
+              drawingControl: true,
+              drawingControlOptions: {
+                  position: google.maps.ControlPosition.TOP_CENTER,
+                  drawingModes: [
+                      google.maps.drawing.OverlayType.MARKER,
+                      google.maps.drawing.OverlayType.POLYGON
+                  ]
+              },
+              markerOptions: {
+                  draggable: true
+              },
+              polygonOptions: {
+                  editable: true
+              }
+          });
+          drawingManager.setMap(map);
+
+          // Add an event listener for polygon completion
+          google.maps.event.addListener(drawingManager, 'polygoncomplete', function (polygon) {
+              // Save the geofence coordinates when the polygon is completed
+              geofenceCoordinates = polygon.getPath().getArray();
+              geofenceCreated = true;
+          });
+      }
+
+      function addMarker(location, formation) {
+          // Existing code to add markers
+          if (geofenceCreated) {
+              const marker = new google.maps.Marker({
+                  position: location,
+                  map: map,
+                  title: formation,
+              });
+
+              if (!formationMarkers[formation]) {
+                  formationMarkers[formation] = [];
+                  markersPlaced[formation] = 0; // Initialize the count of placed markers
+              }
+
+              formationMarkers[formation].push(marker);
+              markersPlaced[formation]++;
+
+              // Add the marker position to the 2D array
+              const row = markersPlaced[formation] - 1; // Index for the current row
+              const col = mat.length; // Index for the current column
+              if (!mat[col]) {
+                  mat[col] = []; // Initialize the column if it doesn't exist
+              }
+              mat[col][row] = location;
+
+              console.log('Current 2D array:', mat);
+          }
+      }
+
+      function clearMarkers() {
+          // Existing code to clear markers
+          Object.values(formationMarkers).forEach(markers => {
+              markers.forEach(marker => {
+                  marker.setMap(null);
+              });
+          });
+      }
+
+      function saveAndClearMarkers() {
+          // Existing code to save and clear markers
+          // Clear markers from the map
+          clearMarkers();
+      }
+
+      function deletemarkes() {
+          // Existing code for deleting markers
+          // Clear markers from the map
+          clearMarkers();
+      }
+
+      queryParams = getQueryParams();
+      displayMissionData();
+      if (queryParams.formations) {
+          addFormationButtons(parseInt(queryParams.formations));
+      }
+
+  </script>
+
+  <!-- Include the Google Maps API script -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYATBKtvUDFASZZJ-KQIErnleNFT3FDQY&callback=initMap&libraries=drawing"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

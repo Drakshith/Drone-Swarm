@@ -1,0 +1,18 @@
+function displayFormationCoordinates(formationNumber) {
+            var coordinates = markerCoordinatesByFormation[formationNumber];
+            var coordinatesInfo = document.getElementById('coordinates-info');
+
+            // Clear previous content
+            coordinatesInfo.innerHTML = '';
+
+            // Display the coordinates on the map
+            if (coordinates && coordinates.length > 0) {
+                coordinatesInfo.innerHTML = '<h4>Formation ' + formationNumber + ' Coordinates:</h4>';
+                coordinates.forEach(function (coordinate, index) {
+                    coordinatesInfo.innerHTML += 'Point ' + (index + 1) + ': Lat ' + coordinate[0].toFixed(6) + ', Lng ' + coordinate[1].toFixed(6) + '<br>';
+                });
+                coordinatesInfo.classList.add('formatted-info-visible');
+            } else {
+                alert("No coordinates found for Formation " + formationNumber);
+            }
+        }

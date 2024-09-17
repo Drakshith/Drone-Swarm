@@ -1,0 +1,78 @@
+\<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Multi-Step Progress Bar</title>
+    <style>
+        .progress-bar {
+            list-style: none;
+            counter-reset: step;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar li {
+            width: 24%;
+            position: relative;
+            text-align: center;
+            user-select: none;
+        }
+
+        .progress-bar li:before {
+            content: counter(step);
+            counter-increment: step;
+            width: 20px; /* Decreased the width */
+            height: 2px; /* Added a thin line */
+            background-color: #ccc; /* Color of the line */
+            display: block;
+            text-align: center;
+            margin: 0 auto 10px auto;
+            border-radius: 0; /* Removed the border-radius */
+        }
+
+        .progress-bar li:after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: #ccc;
+            top: 15px;
+            left: -50%;
+            z-index: -1;
+        }
+
+        .progress-bar li.active:before {
+            content: "\2713";
+            background-color: #007bff;
+            color: #fff;
+            border: 2px solid #007bff;
+            width: 20px; /* Adjusted width to match the thinner lines */
+        }
+
+        .progress-bar li.active + li:after {
+            background-color: #007bff;
+        }
+
+        .progress-bar li.active + li:before {
+            border: 2px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="progress-bar">
+                    <li class="active">Step 1</li>
+                    <li class="">Step 2</li>
+                    <li class="">Step 3</li>
+                    <li class="">Step 4</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

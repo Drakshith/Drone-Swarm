@@ -1,0 +1,300 @@
+:root{
+    --primarycolor: #0076de;
+    --whitecolor: #fff;
+    --blackcolor: #333;
+    --greycolor: #f6f8fa;
+    --labelcolor: #64b1f5;
+    --yellowcolor: #ffd723;
+    --ashcolor: #575353;
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    outline: none;
+    font-family: 'Nunito', sans-serif;
+}
+
+body {
+    width: 100%;
+    height: auto;
+
+}
+#partner-heading{
+    text-align: center;
+    font-weight: bold;
+    margin-top: 100px;
+
+    
+}
+h1{
+    line-height: 1.5;
+}
+
+/* ........................... navbar ....................... */
+
+.navbar {
+    width: 100%;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    left:0;
+    padding: 1rem 2.5rem;
+    z-index: 10;
+    color: var(--blackcolor);
+    background: black;
+}
+/* changing navbar logo to white */
+#logo{
+    letter-spacing: 2.5;
+    text-decoration: none;
+    color: var(--whitecolor);
+}
+/* creating space between the navbar menu. */
+.navbar-menu{
+    width: 400px;
+    display: flex;
+    justify-content: space-between;
+    margin-right: 10px;
+}
+/* creating attribute coliur in white */
+.navbar-menu > a {
+    color: var(--whitecolor);
+    text-decoration: none;
+}
+.navbar-menu a:hover{
+    color: whitesmoke;
+}
+/* diplaying the items with space and fix to the navbar*/
+.menu-toggle{
+    display: none;
+}
+
+.menu-toggle .bar{
+    width: 15px;
+    height: 2px;
+    margin: 3px auto;
+    transition: all 0.3 ease-in-out;
+    background-color: var(--whitecolor);
+    cursor: pointer;
+}
+/* image adjustment*/
+/* header {
+    width: 100%;
+    height: 690px;
+    background-image: url("https://wallpapercave.com/wp/wp1896533.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+} */
+
+header {
+    width: 100%;
+    height: 690px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Add a video container to maintain the aspect ratio */
+.video-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Style the video to cover the entire header */
+#video-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+/* title in image */
+.header-title {
+    position: absolute;
+    top: 12rem;
+    left: 3rem;
+    letter-spacing: 3;
+    font-weight: bolder;
+    font-size: 52px;
+    color: var(--whitecolor);
+    text-shadow: 4px 2px 0pxx rbga(0,0,0,0.2);
+}
+
+/* changing the middle letter colour*/
+.header-title > span {
+    color: var(--primarycolor);
+}
+
+
+
+/*
+*/
+
+
+
+  
+
+
+/*............. footer ...........*/
+
+
+footer{
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: var(--ashcolor);
+    color: var(--whitecolor);
+    padding: 3rem;
+}
+
+.footer-wrapper{
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem;
+    justify-content:  flex-start;
+    align-items: flex-start;
+}
+
+.footer-wrapper h3, 
+.footer-wrapper h4{
+    line-height: 3;
+    color: var(--yellowcolor);
+}
+
+/*.......... social media....... footer.....*/
+.social-media {
+    margin-top:  1rem;
+    font-size: 3rem;
+}
+
+.footer-wrapper a {
+    text-decoration:  none;
+    color: var(--greycolor);
+    line-height: 2;
+}
+.social-media{
+    margin-top: 1rem;
+}
+
+.social-media a{
+    text-decoration: none;
+    color: var(--greycolor);
+    margin-right:  10px;
+}
+
+.footer-wrapper a{
+    text-decoration: none;
+    color: var(--greycolor);
+    line-height: 2;
+}
+.footer-wrapper a:hover{
+    text-decoration: underline;
+}
+
+/* ......................................footer end............................*/
+
+
+/*. mobile Screen  */
+@media screen and (max-width: 600px) {
+    .menu-toggle ,
+    .bar{
+        display: block;
+        z-index: 3;
+    }
+
+    .menu-toggle.is-active .bar:nth-child(2){
+        opacity :0;
+    }
+
+    .menu-toggle.is-active .bar:nth-child(1){
+        transform: translate(5px) rotate(45deg);
+    }
+    .menu-toggle.is-active .bar:nth-child(3){
+        transform: translate(-5px) rotate(-45deg);
+    }
+
+    .navbar-menu{
+        flex-direction: column;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        text-align: center;
+        background-color: var(--ashcolor);
+        display: none;
+        padding: 5rem;
+    }
+
+    .navbar-menu.active{
+        display: flex;
+    }
+
+    .navbar-menu a {
+        color: var(--whitecolor);
+        padding: 1.5rem;
+    }
+
+    .header-title{
+        font-size: 30px;
+    }
+    .join-button{
+        display: flex;
+    }
+
+}
+
+
+
+
+/*................................... Social media ..................*/
+
+.social a{
+    font-size: 3.5rem;
+    padding: 3rem;
+}
+
+.fa-facebook {
+    color: #3b5998;
+}
+.fa-twitter {
+    color: #00aced;
+}
+.fa-google {
+    color: #dd4b39;
+}
+.fa-instagram {
+    color: #e95eb2;
+}
+.fa-youtube {
+    color: #bb0000;
+}
+
+/*hover effect*/
+
+.fa-facebook:hover,
+.fa-twitter:hover,
+.fa-google:hover,
+.fa-instagram:hover,
+.fa-youtube:hover{
+    color: #efbebe;
+
+}
+
+/*................... connect    social icon end .........*/
+
+
+
+
+

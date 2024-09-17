@@ -1,0 +1,71 @@
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Drone Control</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            background-color: #007BFF;
+            color: white;
+            padding: 20px;
+            margin: 0;
+        }
+
+        form {
+            display: inline;
+            justify-content: space-evenly;
+            /* Display forms in a horizontal line */
+            margin: 0;
+        }
+
+        input[type="submit"] {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Drone Control</h1>
+
+    <section>
+        <div style="padding-top: 40px; ">
+
+            <form action="/connect_to_drone_route" method="post">
+                <input style=" margin-right: 20px; margin-left: 30px;" type="submit" value="Connect">
+            </form>
+
+            <form action="/takeoff_route" method="post">
+                <input style="margin-right: 20px;" type="submit" value="Arm and takeoff">
+            </form>
+
+            <form action="/land_route" method="post">
+                <input style="margin-right: 20px;" type="submit" value="Land drones">
+            </form>
+            <form action="/close_drone_connection" method="POST">
+                <input style="margin-right: 20px;" type="submit" value="Close drones">
+            </form>
+
+        </div>
+    </section>
+</body>
+
+</html>

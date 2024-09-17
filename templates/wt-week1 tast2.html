@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Portfolio</title>
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <style>
+    .navbar {
+        background-color: #000000;
+    }
+
+    .navbar-brand img {
+        max-height: 30px; 
+    }
+
+
+    #about {
+        padding: 40px 0;
+    }
+
+    #about h2 {
+        color: #333; 
+    }
+
+  
+    #education {
+        padding: 40px 0;
+    }
+
+    #education h2 {
+        color: #333;
+    }
+
+
+    #projects {
+        padding: 40px 0;
+    }
+
+    #projects h2 {
+        color: #333;
+    }
+
+
+    #contact {
+        padding: 40px 0;
+    }
+
+    #contact h2 {
+        color: #333;
+    }
+    .card-title {
+        font-size: 18px;
+        color: #333;
+    }
+
+    .btn-primary {
+        background-color: #007bff; 
+        border-color: #007bff; 
+    }
+
+    .btn-primary:hover {
+        background-color: #f10d0d; 
+        border-color: #0056b3; 
+    }
+
+    
+    footer {
+        background-color: #f8f9fa;
+        padding: 20px 0;
+        text-align: center;
+        color: #333;
+    }
+
+
+
+
+</style>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg ">
+        <a class="navbar-brand" href="#">
+            <img src="data:image/jpeg;base64,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" alt="KMIT Logo" height="30">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div  class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="#about">About Me</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#education">Education</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#projects">Projects</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- About Me Section -->
+    <section id="about" class="container mt-5">
+        <h2>About Me</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <img style="height: 200px; width: 200px; border-radius: 50%; border: 3px solid #f141c8;" src="https://images.unsplash.com/photo-1602233158242-3ba0ac4d2167?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Z2lybHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60" alt="pic">
+            </div>
+            <div class="col-md-8">
+                <h4>I'm Simple</h4>
+                <ul>
+                    <li>I'm known for my strong analytical skills and proficiency in data-driven marketing strategies. Outside of work</li>
+                    <li> I'm passionate about digital marketing trends and often participate in industry webinars and conferences to stay updated. In my free time</li>
+                    <li>I enjoy hiking and photography, which allows me to combine my love for the outdoors with my creative interests.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    
+    <hr>
+
+    <!-- Education Section with Table -->
+    <section id="education" class="container mt-5">
+        <h2>My Education</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Education</th>
+                    <th>Institution</th>
+                    <th>Year</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>SCC</td>
+                    <td>Annus Academy High School</td>
+                    <td>2018</td>
+                </tr>
+                <tr>
+                    <td>Intermediate</td>
+                    <td>Impulse</td>
+                    <td>2020</td>
+                </tr>
+                <tr>
+                    <td>B.Tech</td>
+                    <td>Your University</td>
+                    <td>2021</td>
+                </tr>
+               
+                <!-- Add more rows for your education history -->
+            </tbody>
+        </table>
+    </section>
+
+    <hr>
+
+    <!-- Projects Section -->
+    <section id="projects" class="container mt-5">
+        <h2>My Projects</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Weather Predication</h5>
+                        <p class="card-text">Description of your project goes here.</p>
+                        <a href="#" class="btn btn-primary">Check Here</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card mb-4"> 
+                    <div class="card-body">
+                        <h5 class="card-title">KMIT Drone Swarm</h5>
+                        <p class="card-text">Description of your project goes here.</p>
+                        <a href="#" class="btn btn-primary">Check Here</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Robotics</h5>
+                        <p class="card-text">Description of your project goes here.</p>
+                        <a href="#" class="btn btn-primary">Check Here</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">AI & ML</h5>
+                        <p class="card-text">Description of your project goes here.</p>
+                        <a href="#" class="btn btn-primary">Check Here</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<hr>
+
+<section id="contact" class="container mt-5">
+    <h2>Contact Me</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <p>
+            You can reach me via email or phone. Feel free to get in touch with any inquiries or opportunities.
+            </p>
+            <address>
+                Email: JohnJoe.@gamil.com<br>
+                Phone: +1 (123) 456-7890<br>
+                Address: Mahaboob - Nagar, Hyderabad, Telangana, 200056.
+            </address>
+        </div>
+        
+        
+        <div class="col-md-6">
+            <form>
+                <div class="mb-3">
+                  <label for="exampleFormControlInput1" class="form-label">Email address</label>
+                  <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="E-Mail">
+                </div>
+                <div class="mb-3">
+                  <label for="exampleFormControlTextarea1" class="form-label">Message</label>
+                  <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label"></label>
+                    <textarea class="form-control" id="exampleFormControlTextarea1" placeholder="Subject"></textarea>
+                  </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </form>
+        </div>
+    </div>
+</section>
+
+
+    <!-- Add Bootstrap JS scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

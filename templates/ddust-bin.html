@@ -1,0 +1,759 @@
+<html>
+
+<head>
+    <title>Google Maps Draw Polygon and Markers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 60px 0 0;
+            /* Add 60px top padding for the fixed navbar */
+            background-color: #f4f4f4;
+            display: flex;
+        }
+
+        .container-fluid {
+            display: flex;
+            flex: 1;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #333;
+            overflow: hidden;
+        }
+
+        .navbar a {
+            float: right;
+            /* Align "Home," "About Us," and "Contact" links to the right */
+            font-size: 16px;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .navbar .icon {
+            display: none;
+            font-size: 30px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .drone-swarm {
+            float: left;
+            /* Align the drone swarm content to the left */
+            color: white;
+            padding: 14px 16px;
+        }
+
+        .map-container {
+            flex: 1;
+            height: 100%;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+
+        .events-container {
+            flex: 0.6;
+            padding: 20px;
+            text-align: center;
+            background-color: #f7f7f7;
+            overflow-y: auto;
+            border-left: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+            height: 100%;
+        }
+
+        .events-container h4 {
+            color: #428bca;
+        }
+
+        .events-container input[type="number"] {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        #map-canvas {
+            height: 100%;
+            width: 100%;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .button-container button {
+            background-color: #428bca;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .button-container button:hover {
+            background-color: #357ebd;
+        }
+
+        .formatted-info {
+            margin-top: 10px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .formatted-info ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .formatted-info li {
+            margin-bottom: 5px;
+        }
+
+        .formation-container {
+            background-color: #fff;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .formation-container h5 {
+            font-size: 20px;
+            color: #428bca;
+            margin: 0;
+            padding: 10px;
+            border-radius: 8px 8px 0 0;
+            background-color: #f0f0f0;
+        }
+
+        .formation-container p {
+            font-size: 16px;
+            color: #555;
+            margin: 0;
+            padding: 10px;
+            border-radius: 0 0 8px 8px;
+            background-color: #fff;
+        }
+
+        .delete-formation-button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .delete-formation-button:hover {
+            background-color: #c0392b;
+        }
+
+        .highlighted {
+            opacity: 1 !important;
+        }
+
+        /* Add responsive navigation styles */
+        @media screen and (max-width: 600px) {
+            .navbar a {
+                display: none;
+            }
+
+            .navbar a.icon {
+                display: block;
+            }
+
+            .navbar.responsive {
+                position: relative;
+            }
+
+            .navbar.responsive .icon {
+                position: absolute;
+                top: 0;
+                right: 0;
+            }
+
+            .navbar.responsive a {
+                float: none;
+                display: block;
+                text-align: left;
+            }
+        }
+
+        /*............................. generated formation buttons ........................*/
+
+        .formation-button {
+            background-color: #428bca;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .formation-button:hover {
+            background-color: #357ebd;
+        }
+
+        /* ................................. Save the formation info ...................... */
+
+        .formatted-info {
+            /* Your existing styles for formatted-info */
+            display: none;
+            /* Initially hide the formatted info */
+        }
+
+        .formatted-info-visible {
+            display: block;
+            /* Show the formatted info when visible class is added */
+            /* Add styling for the visible formatted info here */
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        #coordinates-info {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="navbar" id="navbar">
+            <span class="drone-swarm">Drone Swarm</span>
+            <a href="#">Contact Us</a>
+            <a href="#">Services</a>
+            <a href="#">About Us</a>
+            <a href="drone.html">Home</a>
+            <a class="icon" onclick="toggleNavbar()">&#9776;</a>
+        </div>
+
+        <div style="padding-left: 0px; margin-top: 0px;" class="map-container">
+            <h2>Mission Planner</h2>
+            <div id="map-canvas"></div>
+        </div>
+        <div class="events-container">
+            <h4>Events</h4>
+            <label for="numDrones">Select Number of Drones:</label>
+            <input type="number" id="numDrones" min="1" value="1">
+            <br>
+            <br>
+            <label for="numFormations">Select Number of Formations:</label>
+            <input type="number" id="numFormations" min="1" value="1">
+            <div id="marker-info" class="formatted-info"></div>
+            <div class="formation-info">
+                <!-- Formation info will be added here -->
+            </div>
+            <div class="button-container">
+                <button class="button" onclick="startDrawing()">
+                    <i class="fas fa-map"></i> Start Drawing
+                </button>
+                <button class="button" onclick="clearMarkers()">
+                    <i class="fas fa-map-marker-alt"></i> Clear Markers
+                </button>
+                <button class="button" onclick="clearGeofenceAndMarkers()">
+                    <i class="fas fa-map-marker-alt"></i> Clear Geofence and Markers
+                    <button class="button" onclick="startMission()">
+                        <i class="fas fa-play"></i> Start Mission
+                    </button>
+
+                    <!-- Add this button in your HTML -->
+                    <button class="btn btn-success" onclick="displayAllMarkers()">Display All Markers</button>
+                    <div id="coordinates-info" class="formatted-info"></div>
+
+            </div>
+        </div>
+        <!-- Add this element in your HTML -->
+        <div id="coordinates-info" class="formatted-info"></div>
+
+    </div>
+
+    <script type="text/javascript"
+        src="https://maps.googleapis.com/maps/api/js?key=&libraries=drawing,geometry"></script>
+    <script>
+        var mapOptions;
+        var map;
+        var geofenceShape;
+        var markers = [];
+        var markerLimit = 1;
+        var selectedFormationNumber = null;
+        var markerCoordinatesByFormation = {};
+        var markersByFormation = {};
+
+        function InitMap() {
+            var location = new google.maps.LatLng(28.620585, 77.228609);
+            mapOptions = {
+                zoom: 12,
+                center: location,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+            map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+        }
+
+        function toggleNavbar() {
+            var navbar = document.getElementById("navbar");
+            if (navbar.className === "navbar") {
+                navbar.className += " responsive";
+            } else {
+                navbar.className = "navbar";
+            }
+        }
+
+        function createFormationButtons(numFormations) {
+            var formationInfo = document.querySelector('.formation-info');
+            formationInfo.innerHTML = '';
+
+            for (var i = 1; i <= numFormations; i++) {
+                var formationButton = document.createElement('button');
+                formationButton.classList.add('button', 'formation-button');
+                formationButton.dataset.formationNumber = i;
+                formationButton.innerText = 'Formation ' + i;
+                formationButton.onclick = function () {
+                    handleFormationButtonClick(this);
+                };
+                formationInfo.appendChild(formationButton);
+            }
+        }
+
+
+
+
+
+
+        // Function to display coordinates for a formation
+        function displayFormationCoordinates(formationNumber) {
+            var coordinates = markerCoordinatesByFormation[formationNumber];
+            var coordinatesInfo = document.getElementById('coordinates-info');
+
+            // Clear previous content
+            coordinatesInfo.innerHTML = '';
+
+            // Display the coordinates on the map
+            if (coordinates && coordinates.length > 0) {
+                coordinatesInfo.innerHTML = '<h4>Formation ' + formationNumber + ' Coordinates:</h4>';
+                coordinates.forEach(function (coordinate, index) {
+                    coordinatesInfo.innerHTML += 'Point ' + (index + 1) + ': Lat ' + coordinate[0].toFixed(6) + ', Lng ' + coordinate[1].toFixed(6) + '<br>';
+                });
+                coordinatesInfo.classList.add('formatted-info-visible');
+            } else {
+                alert("No coordinates found for Formation " + formationNumber);
+            }
+        }
+
+
+        // Function to save the markers associated with a formation
+        function saveFormation() {
+            if (selectedFormationNumber !== null) {
+                // Save markers associated with the selected formation
+                var markersToSave = markersByFormation[selectedFormationNumber];
+
+                if (markersToSave && markersToSave.length > 0) {
+                    // Extract latitude and longitude information from markers
+                    var coordinates = markersToSave.map(function (marker) {
+                        var position = marker.getPosition();
+                        return [position.lat(), position.lng()];
+                    });
+
+                    // Store the coordinates in the 2D array
+                    markerCoordinatesByFormation[selectedFormationNumber] = coordinates;
+
+                    // Log coordinates to the console or send them to your backend
+                    console.log('Coordinates for Formation ' + selectedFormationNumber, coordinates);
+
+                    // Clear markers on the map (not in memory)
+                    markersToSave.forEach(function (marker) {
+                        marker.setMap(null);
+                    });
+
+                    // Clear the associated markers from memory
+                    markersByFormation[selectedFormationNumber] = [];
+
+                    // Optionally, you can add visual feedback or confirmation of the saved formation
+                    var formationInfo = document.querySelector('.formation-info');
+                    var savedMessage = document.createElement('div');
+                    savedMessage.classList.add('formatted-info');
+                    savedMessage.innerHTML = 'Formation ' + selectedFormationNumber + ' has been saved!';
+                    formationInfo.appendChild(savedMessage);
+                } else {
+                    alert("No markers in Formation " + selectedFormationNumber);
+                }
+            } else {
+                alert("Please select a formation before saving.");
+            }
+        }
+
+
+        function startDrawing() {
+            var numDrones = parseInt(document.getElementById('numDrones').value, 10);
+            var numFormations = parseInt(document.getElementById('numFormations').value, 10);
+
+            if (numDrones < 1 || numFormations < 1) {
+                alert("Please select at least 1 drone and 1 formation.");
+                return;
+            }
+
+            // Limit the marker creation to the number of drones
+            markerLimit = numDrones;
+
+            var drawingManager = new google.maps.drawing.DrawingManager({
+                drawingControlOptions: {
+                    drawingModes: [
+                        google.maps.drawing.OverlayType.POLYGON,
+                        google.maps.drawing.OverlayType.MARKER
+                    ]
+                },
+                markerOptions: {
+                    draggable: true
+                }
+            });
+            drawingManager.setMap(map);
+
+            createFormationButtons(numFormations);
+
+            google.maps.event.addListener(drawingManager, 'overlaycomplete', function (event) {
+                if (event.type === google.maps.drawing.OverlayType.POLYGON) {
+                    if (geofenceShape) {
+                        alert("You can only have one geofence at a time. Clear the current geofence to draw a new one.");
+                        event.overlay.setMap(null);
+                    } else {
+                        geofenceShape = event.overlay;
+                        var polygon = event.overlay.getPath().getArray();
+                        // Handle the geofence polygon as needed
+                    }
+                } else if (event.type === google.maps.drawing.OverlayType.MARKER) {
+                    if (geofenceShape) {
+                        if (markers.length < markerLimit) {
+                            var marker = event.overlay;
+                            var markerPosition = marker.getPosition();
+                            if (google.maps.geometry.poly.containsLocation(markerPosition, geofenceShape)) {
+                                markers.push(marker);
+                                updateMarkerPositions();
+                            } else {
+                                alert("Marker must be placed inside the geofence.");
+                                marker.setMap(null);
+                            }
+                        } else {
+                            alert("You can only add up to " + markerLimit + " markers inside the geofence.");
+                            event.overlay.setMap(null);
+                        }
+                    } else {
+                        alert("Please create a geofence first.");
+                        event.overlay.setMap(null);
+                    }
+                }
+            });
+        }
+
+
+
+        function updateMarkerPositions() {
+            var markerInfo = document.getElementById('marker-info');
+            var positions = "";
+            markers.forEach(function (marker, index) {
+                positions += 'Marker ' + (index + 1) + ': Lat ' + marker.getPosition().lat().toFixed(6) + ', Lng ' + marker.getPosition().lng().toFixed(6) + '<br>';
+            });
+            markerInfo.innerHTML = positions;
+        }
+
+        function clearMarkers() {
+            markers.forEach(function (marker) {
+                marker.setMap(null);
+            });
+            markers = [];
+            updateMarkerPositions();
+        }
+
+        function clearGeofence() {
+            if (geofenceShape) {
+                geofenceShape.setMap(null);
+                geofenceShape = null;
+                document.getElementById('geofence-info').innerHTML = '';
+            }
+        }
+
+        function clearGeofenceAndMarkers() {
+            clearMarkers();
+            clearGeofence();
+        }
+
+        InitMap();
+
+
+
+
+
+
+
+        var markersByFormation = {};
+
+        function createFormationButtons(numFormations) {
+            var formationInfo = document.querySelector('.formation-info');
+            formationInfo.innerHTML = '';
+
+            for (var i = 1; i <= numFormations; i++) {
+                var formationButton = document.createElement('button');
+                formationButton.classList.add('button', 'formation-button');
+                formationButton.dataset.formationNumber = i;
+                formationButton.innerText = 'Formation ' + i;
+                formationButton.onclick = function () {
+                    handleFormationButtonClick(this);
+                };
+                formationInfo.appendChild(formationButton);
+            }
+
+            // Create the "Save Formation" button
+            var saveFormationButton = document.createElement('button');
+            saveFormationButton.classList.add('button');
+            saveFormationButton.innerText = 'Save Formation';
+            saveFormationButton.onclick = function () {
+                saveFormation();
+            };
+            formationInfo.appendChild(saveFormationButton);
+        }
+
+        function handleFormationButtonClick(button) {
+            var formationNumber = button.dataset.formationNumber;
+
+            // Remove highlight from the previously selected formation (if any)
+            var prevButton = document.querySelector('.formation-button.highlighted');
+            if (prevButton) {
+                prevButton.classList.remove('highlighted');
+            }
+
+            // Add highlight to the clicked formation button
+            button.classList.add('highlighted');
+            selectedFormationNumber = formationNumber;
+
+            // Initialize the array for the selected formation if not already created
+            markerCoordinatesByFormation[selectedFormationNumber] = markerCoordinatesByFormation[selectedFormationNumber] || [];
+
+            // Save the markers in the 2D array for the selected formation
+            var markersToSave = markers.map(function (marker) {
+                return [marker.getPosition().lat(), marker.getPosition().lng()];
+            });
+            markerCoordinatesByFormation[selectedFormationNumber] = markersToSave;
+
+            // Display the coordinates of the selected formation
+            displayFormationCoordinates(selectedFormationNumber);
+
+            // Clear markers on the map
+            clearMarkers();
+
+            // Optionally, you can add visual feedback or confirmation of the saved formation
+            var formationInfo = document.querySelector('.formation-info');
+            var savedMessage = document.createElement('div');
+            savedMessage.classList.add('formatted-info');
+            savedMessage.innerHTML = 'Formation ' + selectedFormationNumber + ' has been saved!';
+            formationInfo.appendChild(savedMessage);
+        }
+
+
+
+        // Function to display coordinates for a formation
+        function displayFormationCoordinates(formationNumber) {
+            var coordinates = markerCoordinatesByFormation[formationNumber];
+            var coordinatesInfo = document.getElementById('coordinates-info');
+
+            coordinatesInfo.innerHTML = '';
+
+            if (coordinates && coordinates.length > 0) {
+                coordinatesInfo.innerHTML = '<h4>Formation ' + formationNumber + ' Coordinates:</h4>';
+                coordinates.forEach(function (coordinate, index) {
+                    coordinatesInfo.innerHTML += 'Point ' + (index + 1) + ': Lat ' + coordinate[0].toFixed(6) + ', Lng ' + coordinate[1].toFixed(6) + '<br>';
+                });
+                coordinatesInfo.classList.add('formatted-info-visible');
+            } else {
+                alert("No coordinates found for Formation " + formationNumber);
+            }
+        }
+        // Function to save the markers associated with a formation
+
+        // Function to add a marker to a formation
+        function addMarkerToFormation(marker, formationNumber) {
+            if (!markersByFormation[formationNumber]) {
+                markersByFormation[formationNumber] = [];
+            }
+            markersByFormation[formationNumber].push(marker);
+        }
+
+        // Function to remove a marker from a formation
+        function removeMarkerFromFormation(marker, formationNumber) {
+            if (markersByFormation[formationNumber]) {
+                markersByFormation[formationNumber] = markersByFormation[formationNumber].filter(function (m) {
+                    return m !== marker;
+                });
+            }
+        }
+        function displayAllMarkers() {
+            markers.forEach(function (marker) {
+                marker.setMap(map);
+            });
+
+            // Optionally, you can add visual feedback or confirmation
+            alert('All markers are displayed.');
+
+            // Display coordinates for all markers
+            displayAllMarkerCoordinates();
+        }
+
+        // Function to display coordinates for all markers
+        // Function to display coordinates for all markers and formations
+        function displayAllMarkerCoordinates() {
+            var coordinatesInfo = document.getElementById('coordinates-info');
+            coordinatesInfo.innerHTML = '';
+
+            // Display coordinates for all markers
+            markers.forEach(function (marker, index) {
+                var position = marker.getPosition();
+                coordinatesInfo.innerHTML += 'Marker ' + (index + 1) + ': Lat ' + position.lat().toFixed(6) + ', Lng ' + position.lng().toFixed(6) + '<br>';
+            });
+
+            // Display coordinates for all formations
+            Object.keys(markerCoordinatesByFormation).forEach(function (formationNumber) {
+                var coordinates = markerCoordinatesByFormation[formationNumber];
+                coordinatesInfo.innerHTML += '<h4>Formation ' + formationNumber + ' Coordinates:</h4>';
+                coordinates.forEach(function (coordinate, index) {
+                    coordinatesInfo.innerHTML += 'Point ' + (index + 1) + ': Lat ' + coordinate[0].toFixed(6) + ', Lng ' + coordinate[1].toFixed(6) + '<br>';
+                });
+            });
+
+            coordinatesInfo.classList.add('formatted-info-visible');
+        }
+
+        // Function to start the mission and animate markers between formations
+        function startMission() {
+            if (Object.keys(markerCoordinatesByFormation).length < 2) {
+                alert("At least two formations are required to start the mission.");
+                return;
+            }
+
+            // Iterate through each pair of consecutive formations
+            var formationNumbers = Object.keys(markerCoordinatesByFormation).sort(function (a, b) {
+                return a - b;
+            });
+
+            for (var i = 0; i < formationNumbers.length - 1; i++) {
+                var startFormationNumber = formationNumbers[i];
+                var endFormationNumber = formationNumbers[i + 1];
+
+                var startCoordinates = markerCoordinatesByFormation[startFormationNumber];
+                var endCoordinates = markerCoordinatesByFormation[endFormationNumber];
+
+                // Ensure there are coordinates in both formations
+                if (startCoordinates.length > 0 && endCoordinates.length > 0) {
+                    animateMarkersBetweenFormations(startCoordinates, endCoordinates);
+                } else {
+                    alert("Coordinates are missing for one of the formations. Mission aborted.");
+                    return;
+                }
+            }
+        }
+
+        // Function to animate markers between two formations
+        function animateMarkersBetweenFormations(startCoordinates, endCoordinates) {
+            var animationSpeed = 50000; // Adjust the animation speed (milliseconds)
+            var numMarkers = Math.min(startCoordinates.length, endCoordinates.length);
+            var markers = []; // Array to store all markers
+
+            // Create starting point markers of formation1 with solid style
+            for (var i = 0; i < numMarkers; i++) {
+                var startLatLng = new google.maps.LatLng(startCoordinates[i][0], startCoordinates[i][1]);
+
+                var marker = new google.maps.Marker({
+                    position: startLatLng,
+                    map: map,
+                    animation: google.maps.Animation.DROP,
+                    opacity: 1, // Solid opacity for formation1
+                });
+
+                markers.push(marker); // Add marker to the array
+            }
+
+            // Animate all markers to the end points with adjusted opacity
+            animateMarkers(markers, endCoordinates, animationSpeed);
+        }
+
+        // Function to animate all markers to the end positions with transparent animation
+        function animateMarkers(markers, endCoordinates, duration) {
+            var startTime = new Date().getTime();
+
+            function animate() {
+                var currentTime = new Date().getTime();
+                var elapsedTime = currentTime - startTime;
+                var fraction = elapsedTime / duration;
+
+                if (fraction < 1.0) {
+                    // Interpolate each marker's position and set it with adjusted opacity
+                    markers.forEach(function (marker, index) {
+                        var startPosition = marker.getPosition();
+                        var endLatLng = new google.maps.LatLng(endCoordinates[index][0], endCoordinates[index][1]);
+                        var newPosition = google.maps.geometry.spherical.interpolate(startPosition, endLatLng, fraction);
+                        marker.setPosition(newPosition);
+                        marker.setOpacity(1 - fraction); // Adjust opacity based on the fraction
+                    });
+
+                    requestAnimationFrame(animate);
+                } else {
+                    // Set markers to their final positions and make them solid
+                    markers.forEach(function (marker, index) {
+                        var endLatLng = new google.maps.LatLng(endCoordinates[index][0], endCoordinates[index][1]);
+                        marker.setPosition(endLatLng);
+                        marker.setOpacity(1); // Make markers solid at the end
+                    });
+                }
+            }
+
+            animate();
+        }
+
+
+
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

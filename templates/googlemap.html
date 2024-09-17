@@ -1,0 +1,809 @@
+<html>
+
+<head>
+    <title>Google Maps Draw Polygon and Markers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 60px 0 0; /* Add 60px top padding for the fixed navbar */
+            background-color: #f4f4f4;
+            display: flex;
+        }
+
+        .container-fluid {
+            display: flex;
+            flex: 1;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #333;
+            overflow: hidden;
+        }
+
+        .navbar a {
+            float: right; /* Align "Home," "About Us," and "Contact" links to the right */
+            font-size: 16px;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .navbar .icon {
+            display: none;
+            font-size: 30px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .drone-swarm {
+            float: left; /* Align the drone swarm content to the left */
+            color: white;
+            padding: 14px 16px;
+        }
+
+        .map-container {
+            flex: 1;
+            height: 100%;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+
+        .events-container {
+            flex: 0.6;
+            padding: 20px;
+            text-align: center;
+            background-color: #f7f7f7;
+            overflow-y: auto;
+            border-left: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+            height: 100%;
+        }
+
+        .events-container h4 {
+            color: #428bca;
+        }
+
+        .events-container input[type="number"] {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        #map-canvas {
+            height: 100%;
+            width: 100%;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .button-container button {
+            background-color: #428bca;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .button-container button:hover {
+            background-color: #357ebd;
+        }
+
+        .formatted-info {
+            margin-top: 10px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .formatted-info ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .formatted-info li {
+            margin-bottom: 5px;
+        }
+
+        .formation-container {
+            background-color: #fff;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .formation-container h5 {
+            font-size: 20px;
+            color: #428bca;
+            margin: 0;
+            padding: 10px;
+            border-radius: 8px 8px 0 0;
+            background-color: #f0f0f0;
+        }
+
+        .formation-container p {
+            font-size: 16px;
+            color: #555;
+            margin: 0;
+            padding: 10px;
+            border-radius: 0 0 8px 8px;
+            background-color: #fff;
+        }
+
+        .delete-formation-button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .delete-formation-button:hover {
+            background-color: #c0392b;
+        }
+
+        .highlighted {
+            opacity: 1 !important;
+        }
+
+        /* Add responsive navigation styles */
+        @media screen and (max-width: 600px) {
+            .navbar a {
+                display: none;
+            }
+
+            .navbar a.icon {
+                display: block;
+            }
+
+            .navbar.responsive {
+                position: relative;
+            }
+
+            .navbar.responsive .icon {
+                position: absolute;
+                top: 0;
+                right: 0;
+            }
+
+            .navbar.responsive a {
+                float: none;
+                display: block;
+                text-align: left;
+            }
+        }
+
+        /*............................. generated formation buttons ........................*/
+
+        .formation-button {
+            background-color: #428bca;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .formation-button:hover {
+            background-color: #357ebd;
+        }
+
+        /* ................................. Save the formation info ...................... */
+
+        .formatted-info {
+            /* Your existing styles for formatted-info */
+            display: none; /* Initially hide the formatted info */
+        }
+
+        .formatted-info-visible {
+            display: block; /* Show the formatted info when visible class is added */
+            /* Add styling for the visible formatted info here */
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="navbar" id="navbar">
+            <span class="drone-swarm">Drone Swarm</span>
+            <a href="#">Contact Us</a>
+            <a href="#">Services</a>
+            <a href="#">About Us</a>
+            <a href="drone.html">Home</a>
+            <a class="icon" onclick="toggleNavbar()">&#9776;</a>
+        </div>
+
+        <div style="padding-left: 0px; margin-top: 0px;" class="map-container">
+            <h2>Mission Planner</h2>
+            <div id="map-canvas"></div>
+        </div>
+        <div class="events-container">
+            <h4>Events</h4>
+            <label for="numDrones">Select Number of Drones:</label>
+            <input type="number" id="numDrones" min="1" value="1">
+            <br>
+            <br>
+            <label for="numFormations">Select Number of Formations:</label>
+            <input type="number" id="numFormations" min="1" value="1">
+            <div id="marker-info" class="formatted-info"></div>
+            <div class="formation-info">
+                <!-- Formation info will be added here -->
+            </div>
+            <div class="button-container">
+                <button class="button" onclick="startDrawing()">
+                    <i class="fas fa-map"></i> Start Drawing
+                </button>
+                <button class="button" onclick="clearMarkers()">
+                    <i class="fas fa-map-marker-alt"></i> Clear Markers
+                </button>
+                <button class="button" onclick="clearGeofenceAndMarkers()">
+                    <i class="fas fa-map-marker-alt"></i> Clear Geofence and Markers
+                </button>
+                <button class="button" onclick="startMission()">
+                    <i class="fas fa-play"></i> Start Mission
+                </button>
+            </div>
+            <button class="button" onclick="saveFormation()">
+                <i class="fas fa-cloud-upload-alt"></i> Save Formation
+            </button>
+        </div>
+    </div>
+
+    <script type="text/javascript"
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYATBKtvUDFASZZJ-KQIErnleNFT3FDQY&libraries=drawing,geometry"></script>
+        <script>
+         var mapOptions;
+        var map;
+        var geofenceShape;
+        var markers = [];
+        var markerLimit = 1;
+        var selectedFormationNumber = null;
+        // Define a data structure to store markers for each formation
+        var markersByFormation = {};
+
+
+        function InitMap() {
+            var location = new google.maps.LatLng(28.620585, 77.228609);
+            mapOptions = {
+                zoom: 12,
+                center: location,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+            map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+        }
+
+        function toggleNavbar() {
+            var navbar = document.getElementById("navbar");
+            if (navbar.className === "navbar") {
+                navbar.className += " responsive";
+            } else {
+                navbar.className = "navbar";
+            }
+        }
+
+        function createFormationButtons(numFormations) {
+            var formationInfo = document.querySelector('.formation-info');
+            formationInfo.innerHTML = '';
+
+            for (var i = 1; i <= numFormations; i++) {
+                var formationButton = document.createElement('button');
+                formationButton.classList.add('button', 'formation-button');
+                formationButton.dataset.formationNumber = i;
+                formationButton.innerText = 'Formation ' + i;
+                formationButton.onclick = function () {
+                    handleFormationButtonClick(this);
+                };
+                formationInfo.appendChild(formationButton);
+            }
+        }
+        function handleFormationButtonClick(button) {
+    var formationNumber = button.dataset.formationNumber;
+
+    if (selectedFormationNumber !== null) {
+        // Remove the highlighted class from the previously selected button
+        var prevButton = document.querySelector(`.formation-button[data-formation-number="${selectedFormationNumber}"]`);
+        prevButton.classList.remove('highlighted');
+    }
+
+    button.classList.add('highlighted');
+    selectedFormationNumber = formationNumber;
+
+    // Display the saved markers for the selected formation
+    displaySavedMarkersOnMap(selectedFormationNumber);
+}
+
+function saveFormation() {
+    if (selectedFormationNumber !== null) {
+        var markersToSave = markersByFormation[selectedFormationNumber];
+
+        if (markersToSave && markersToSave.length > 0) {
+            var savedMarkersInfo = document.getElementById('saved-markers-info');
+            savedMarkersInfo.innerHTML = '<h4>Formation ' + selectedFormationNumber + ' Markers:</h4>';
+            markersToSave.forEach(function (marker, index) {
+                var position = marker.getPosition();
+                savedMarkersInfo.innerHTML += 'Marker ' + (index + 1) + ': Lat ' + position.lat().toFixed(6) + ', Lng ' + position.lng().toFixed(6) + '<br>';
+            });
+            savedMarkersInfo.classList.add('formatted-info-visible');
+        } else {
+            alert("No markers in Formation " + selectedFormationNumber);
+        }
+    } else {
+        alert("Please select a formation before saving.");
+    }
+}
+
+
+        
+            
+
+            function startDrawing() {
+            var numDrones = parseInt(document.getElementById('numDrones').value, 10);
+            var numFormations = parseInt(document.getElementById('numFormations').value, 10);
+
+            if (numDrones < 1 || numFormations < 1) {
+                alert("Please select at least 1 drone and 1 formation.");
+                return;
+            }
+
+            // Limit the marker creation to the number of drones
+            markerLimit = numDrones;
+
+            var drawingManager = new google.maps.drawing.DrawingManager({
+                drawingControlOptions: {
+                    drawingModes: [
+                        google.maps.drawing.OverlayType.POLYGON,
+                        google.maps.drawing.OverlayType.MARKER
+                    ]
+                },
+                markerOptions: {
+                    draggable: true
+                }
+            });
+            drawingManager.setMap(map);
+
+            createFormationButtons(numFormations);
+
+            google.maps.event.addListener(drawingManager, 'overlaycomplete', function (event) {
+                if (event.type === google.maps.drawing.OverlayType.POLYGON) {
+                    if (geofenceShape) {
+                        alert("You can only have one geofence at a time. Clear the current geofence to draw a new one.");
+                        event.overlay.setMap(null);
+                    } else {
+                        geofenceShape = event.overlay;
+                        var polygon = event.overlay.getPath().getArray();
+                        // Handle the geofence polygon as needed
+                    }
+                } else if (event.type === google.maps.drawing.OverlayType.MARKER) {
+                    if (geofenceShape) {
+                        if (markers.length < markerLimit) {
+                            var marker = event.overlay;
+                            var markerPosition = marker.getPosition();
+                            if (google.maps.geometry.poly.containsLocation(markerPosition, geofenceShape)) {
+                                markers.push(marker);
+                                updateMarkerPositions();
+                            } else {
+                                alert("Marker must be placed inside the geofence.");
+                                marker.setMap(null);
+                            }
+                        } else {
+                            alert("You can only add up to " + markerLimit + " markers inside the geofence.");
+                            event.overlay.setMap(null);
+                        }
+                    } else {
+                        alert("Please create a geofence first.");
+                        event.overlay.setMap(null);
+                    }
+                }
+            });
+        }
+
+        
+            
+            function updateMarkerPositions() {
+                var markerInfo = document.getElementById('marker-info');
+                var positions = "";
+                markers.forEach(function (marker, index) {
+                    positions += 'Marker ' + (index + 1) + ': Lat ' + marker.getPosition().lat().toFixed(6) + ', Lng ' + marker.getPosition().lng().toFixed(6) + '<br>';
+                });
+                markerInfo.innerHTML = positions;
+            }
+        
+            function clearMarkers() {
+                markers.forEach(function (marker) {
+                    marker.setMap(null);
+                });
+                markers = [];
+                updateMarkerPositions();
+            }
+        
+            function clearGeofence() {
+                if (geofenceShape) {
+                    geofenceShape.setMap(null);
+                    geofenceShape = null;
+                    document.getElementById('geofence-info').innerHTML = '';
+                }
+            }
+        
+            function clearGeofenceAndMarkers() {
+                clearMarkers();
+                clearGeofence();
+            }
+        
+            InitMap();
+        
+            function startMission() {
+    // Get the list of unique formation numbers
+    var formationNumbers = [...new Set(markers.map(marker => getFormationNumberForMarker(marker)))];
+    var speed = 1000; // Speed of movement in meters per second (adjust as needed)
+    var delayBetweenFormations = 2000; // Delay between moving formations in milliseconds
+
+    function moveFormationsSequentially(index) {
+        if (index < formationNumbers.length) {
+            var formationNumber = formationNumbers[index];
+            var markersInFormation = markers.filter(marker => getFormationNumberForMarker(marker) === formationNumber);
+
+            if (markersInFormation.length > 1) {
+                animateMarkersInFormation(markersInFormation, speed, function () {
+                    setTimeout(function () {
+                        moveFormationsSequentially(index + 1);
+                    }, delayBetweenFormations);
+                });
+            } else {
+                // Skip formations with only one marker
+                moveFormationsSequentially(index + 1);
+            }
+        }
+    }
+
+    if (formationNumbers.length > 0) {
+        moveFormationsSequentially(0);
+    }
+}
+        
+function animateMarkersInFormation(markersInFormation, speed, callback) {
+    var currentIndex = 0;
+    var totalMarkers = markersInFormation.length;
+
+    function moveMarkerToNextPosition(index) {
+        if (index < totalMarkers - 1) {
+            var currentMarker = markersInFormation[index];
+            var nextMarker = markersInFormation[index + 1];
+
+            moveMarkerToNextPosition(currentMarker, nextMarker.getPosition(), speed, function () {
+                setTimeout(function () {
+                    moveMarkerToNextPosition(index + 1);
+                }, delayBetweenMarkers);
+            });
+        } else {
+            // All markers have reached their destinations
+            if (typeof callback === 'function') {
+                callback();
+            }
+        }
+    }
+
+    if (markersInFormation.length > 0) {
+        moveMarkerToNextPosition(0);
+    }
+}
+
+function moveMarkerToNextPosition(marker, nextPosition, speed, callback) {
+    var startPosition = marker.getPosition();
+    var distance = google.maps.geometry.spherical.computeDistanceBetween(startPosition, nextPosition);
+    var duration = (distance / speed) * 1000; // Calculate the duration in milliseconds
+
+    var startTime = new Date().getTime();
+    var endTime = startTime + duration;
+
+    function step() {
+        var now = new Date().getTime();
+        var progress = (now - startTime) / duration;
+
+        if (progress < 1) {
+            var newPosition = google.maps.geometry.spherical.interpolate(startPosition, nextPosition, progress);
+            marker.setPosition(newPosition);
+            requestAnimationFrame(step);
+        } else {
+            // Marker has reached its destination
+            marker.setPosition(nextPosition);
+            if (typeof callback === 'function') {
+                callback();
+            }
+        }
+    }
+
+    step();
+}
+
+
+function displaySavedMarkersOnMap(formationNumber) {
+    clearMarkers(); // Clear existing markers
+
+    var markersToDisplay = markersByFormation[formationNumber];
+
+    if (markersToDisplay && markersToDisplay.length > 0) {
+        markersToDisplay.forEach(function (marker) {
+            marker.setMap(map);
+        });
+    }
+}
+
+
+// Function to determine the formation number associated with a marker
+function getFormationNumberForMarker(marker) {
+    // In this sample code, we assume that formation information is stored in the marker's custom properties.
+    // You can assign a 'formationNumber' property to each marker to indicate its formation number.
+    // Adjust this logic based on your data structure.
+    return marker.formationNumber || 0; // Return the 'formationNumber' property, defaulting to 0 if not set.
+}
+
+
+
+//......................... Storing the formation button data .....................
+
+// Define a data structure to store markers for each formation
+var markersByFormation = {};
+
+function createFormationButtons(numFormations) {
+    var formationInfo = document.querySelector('.formation-info');
+    formationInfo.innerHTML = '';
+
+    for (var i = 1; i <= numFormations; i++) {
+        var formationButton = document.createElement('button');
+        formationButton.classList.add('button', 'formation-button');
+        formationButton.dataset.formationNumber = i;
+        formationButton.innerText = 'Formation ' + i;
+        formationButton.onclick = function () {
+            handleFormationButtonClick(this);
+        };
+        formationInfo.appendChild(formationButton);
+    }
+
+    // Create the "Save Formation" button
+    var saveFormationButton = document.createElement('button');
+    saveFormationButton.classList.add('button');
+    saveFormationButton.innerText = 'Save Formation';
+    saveFormationButton.onclick = function () {
+        saveFormation();
+    };
+    formationInfo.appendChild(saveFormationButton);
+}
+
+
+
+function handleFormationButtonClick(button) {
+    var formationNumber = button.dataset.formationNumber;
+    var numDrones = parseInt(document.getElementById('numDrones').value, 10);
+
+    if (numDrones < 1) {
+        alert("Please select at least 1 drone.");
+        return;
+    }
+
+    // Highlight the selected formation button
+    if (selectedFormationNumber !== null) {
+        var prevButton = document.querySelector(`.formation-button[data-formation-number="${selectedFormationNumber}"]`);
+        prevButton.classList.remove('highlighted');
+    }
+
+    button.classList.add('highlighted');
+    selectedFormationNumber = formationNumber;
+
+    // Create and place markers for the selected formation
+    createAndPlaceMarkers(numDrones);
+}
+
+function createAndPlaceMarkers(numDrones) {
+    clearMarkers(); // Clear existing markers
+
+    for (var i = 0; i < numDrones; i++) {
+        var marker = new google.maps.Marker({
+            position: map.getCenter(), // You can set the initial position as needed
+            map: map,
+            draggable: true,
+            formationNumber: selectedFormationNumber // Store the formation number as a custom property
+        });
+
+        // Add the marker to the data structure for the selected formation
+        addMarkerToFormation(marker, selectedFormationNumber);
+    }
+
+    updateMarkerPositions(); // Update the marker information on the page
+}
+
+function saveFormation() {
+    if (selectedFormationNumber !== null) {
+        var markersToSave = markersByFormation[selectedFormationNumber];
+
+        if (markersToSave && markersToSave.length > 0) {
+            // Display the saved markers' coordinates
+            var formattedInfo = document.querySelector('.formatted-info');
+            formattedInfo.innerHTML = '<h4>Formation ' + selectedFormationNumber + ' Markers:</h4>';
+            markersToSave.forEach(function (marker, index) {
+                var position = marker.getPosition();
+                formattedInfo.innerHTML += 'Marker ' + (index + 1) + ': Lat ' + position.lat().toFixed(6) + ', Lng ' + position.lng().toFixed(6) + '<br>';
+            });
+            formattedInfo.classList.add('formatted-info-visible');
+
+            // Remove the markers from the map
+            markersToSave.forEach(function (marker) {
+                marker.setMap(null);
+            });
+
+            // Clear the markers from the data structure
+            markersByFormation[selectedFormationNumber] = [];
+
+            // Clear the markers from the array
+            markersToSave.length = 0;
+        } else {
+            alert("No markers in Formation " + selectedFormationNumber);
+        }
+    } else {
+        alert("Please select a formation before saving.");
+    }
+}
+
+
+
+
+// Function to add a marker to a formation
+function addMarkerToFormation(marker, formationNumber) {
+    if (!markersByFormation[formationNumber]) {
+        markersByFormation[formationNumber] = [];
+    }
+    markersByFormation[formationNumber].push(marker);
+}
+
+// Function to remove a marker from a formation
+function removeMarkerFromFormation(marker, formationNumber) {
+    if (markersByFormation[formationNumber]) {
+        markersByFormation[formationNumber] = markersByFormation[formationNumber].filter(function (m) {
+            return m !== marker;
+        });
+    }
+}
+
+
+//......................................................
+
+ // Initialize selectedFormationNumber as null
+ var selectedFormationNumber = null;
+
+// Function to handle the formation button click
+function handleFormationButtonClick(button) {
+    // Get the formation number from the button's data attribute
+    var formationNumber = button.dataset.formationNumber;
+
+    // Highlight the selected formation button or add your own logic
+    // (you can modify this part as needed)
+    if (selectedFormationNumber !== null) {
+        // Remove the highlighted class from the previously selected button
+        var prevButton = document.querySelector(`.formation-button[data-formation-number="${selectedFormationNumber}"]`);
+        prevButton.classList.remove('highlighted');
+    }
+
+    // Add the highlighted class to the clicked button
+    button.classList.add('highlighted');
+
+    // Set the selected formation number
+    selectedFormationNumber = formationNumber;
+}
+
+// Function to save the markers associated with a formation
+function saveFormation() {
+    if (selectedFormationNumber !== null) {
+        // Save markers associated with the selected formation
+        var markersToSave = markersByFormation[selectedFormationNumber];
+
+        // You can save the 'markersToSave' data to your desired data structure or backend
+        // For this example, we will log the markers to the console
+        console.log('Markers for Formation ' + selectedFormationNumber, markersToSave);
+    } else {
+        alert("Please select a formation before saving.");
+    }
+}
+
+
+// When creating a marker, set its 'formationNumber' property.
+function createMarker(position, formationNumber) {
+    var marker = new google.maps.Marker({
+        position: position,
+        map: null, // Initially not on the map
+        formationNumber: formationNumber // Assign the formation number
+    });
+
+    return marker;
+}
+
+// // Function to handle the formation button click
+// function handleFormationButtonClick(button) {
+//     var formationNumber = button.dataset.formationNumber;
+
+//     if (selectedFormationNumber !== null) {
+//         // Remove the highlighted class from the previously selected button
+//         var prevButton = document.querySelector(`.formation-button[data-formation-number="${selectedFormationNumber}"]`);
+//         prevButton.classList.remove('highlighted');
+//     }
+
+//     button.classList.add('highlighted');
+//     selectedFormationNumber = formationNumber;
+
+//     // Display the saved markers for the selected formation
+//     displaySavedMarkersOnMap(selectedFormationNumber);
+// }
+
+// // Create markers with formation numbers
+// var formation1Markers = [
+//     createMarker({ lat: 28.620585, lng: 77.228609 }, 1),
+//     // Add more markers for Formation 1
+// ];
+
+// var formation2Markers = [
+//     createMarker({ lat: 28.63, lng: 77.22 }, 2),
+//     // Add more markers for Formation 2
+// ];
+
+// // Store markers in their respective formations
+// markersByFormation[1] = formation1Markers;
+// markersByFormation[2] = formation2Markers;
+
+// // Add event listeners for formation buttons
+// var formationButtons = document.querySelectorAll('.formation-button');
+// formationButtons.forEach(function (button) {
+//     button.addEventListener('click', function () {
+//         handleFormationButtonClick(button);
+//     });
+// });
+
+
+        </script>
+        
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,149 @@
+
+function startMissionAnimation() {
+    if (Object.keys(markerCoordinatesByFormation).length < 2) {
+        alert("At least two formations are required to start the mission.");
+        return;
+    }
+
+    var formationNumbers = Object.keys(markerCoordinatesByFormation).sort(function (a, b) {
+        return a - b;
+    });
+
+    animateFormationSequence(formationNumbers, 0);
+}
+
+function animateFormationSequence(formationNumbers, currentIndex) {
+    if (currentIndex < formationNumbers.length - 1) {
+        var startFormationNumber = formationNumbers[currentIndex];
+        var endFormationNumber = formationNumbers[currentIndex + 1];
+
+        var startCoordinates = markerCoordinatesByFormation[startFormationNumber];
+        var endCoordinates = markerCoordinatesByFormation[endFormationNumber];
+
+        // Ensure there are coordinates in both formations
+        if (startCoordinates.length > 0 && endCoordinates.length > 0) {
+            animateMarkersBetweenFormations(startCoordinates, endCoordinates, function () {
+                // Remove markers from the map after reaching the destination
+                removeMarkers(markers);
+                currentIndex++; // Move to the next pair of formations
+                animateFormationSequence(formationNumbers, currentIndex);
+            });
+        } else {
+            alert("Coordinates are missing for one of the formations. Mission aborted.");
+            return;
+        }
+    }
+}
+
+function removeMarkers(markers) {
+    markers.forEach(function (marker) {
+        marker.setMap(null);
+    });
+}
+
+function animateMarkersBetweenFormations(startCoordinates, endCoordinates, callback) {
+    var animationSpeed = 2000; // Adjust the animation speed (milliseconds)
+    var numMarkers = Math.min(startCoordinates.length, endCoordinates.length);
+    var markers = [];
+
+    for (var i = 0; i < numMarkers; i++) {
+        var startLatLng = new google.maps.LatLng(startCoordinates[i][0], startCoordinates[i][1]);
+
+        var marker = new google.maps.Marker({
+            position: startLatLng,
+            map: map,
+            animation: google.maps.Animation.DROP,
+        });
+
+        markers.push(marker);
+    }
+
+    animateMarkers(markers, endCoordinates, animationSpeed, callback);
+}
+
+function animateMarkers(markers, endCoordinates, duration, callback) {
+    var startTime = new Date().getTime();
+
+    function animate() {
+        var currentTime = new Date().getTime();
+        var elapsedTime = currentTime - startTime;
+        var fraction = elapsedTime / duration;
+
+        if (fraction < 1.0) {
+            markers.forEach(function (marker, index) {
+                var startPosition = marker.getPosition();
+                var endLatLng = new google.maps.LatLng(endCoordinates[index][0], endCoordinates[index][1]);
+                var newPosition = google.maps.geometry.spherical.interpolate(startPosition, endLatLng, fraction);
+                marker.setPosition(newPosition);
+            });
+
+            requestAnimationFrame(animate);
+        } else {
+            markers.forEach(function (marker, index) {
+                var endLatLng = new google.maps.LatLng(endCoordinates[index][0], endCoordinates[index][1]);
+                marker.setPosition(endLatLng);
+            });
+
+            if (typeof callback === 'function') {
+                callback();
+            }
+        }
+    }
+
+    animate();
+}
+
+
+
+
+// Function to create and display a polyline between two formations
+function displayPathBetweenFormations(startCoordinates, endCoordinates) {
+var pathCoordinates = [];
+
+// Push the coordinates of markers in the pathCoordinates array
+for (var i = 0; i < Math.min(startCoordinates.length, endCoordinates.length); i++) {
+    pathCoordinates.push({
+        lat: startCoordinates[i][0],
+        lng: startCoordinates[i][1]
+    });
+}
+
+// Add the end coordinates to complete the path
+pathCoordinates.push({
+    lat: endCoordinates[endCoordinates.length - 1][0],
+    lng: endCoordinates[endCoordinates.length - 1][1]
+});
+
+
+}
+
+
+// Function to animate the sequence of formations
+function animateFormationSequence(formationNumbers, currentIndex) {
+    if (currentIndex < formationNumbers.length - 1) {
+        var startFormationNumber = formationNumbers[currentIndex];
+        var endFormationNumber = formationNumbers[currentIndex + 1];
+
+        var startCoordinates = markerCoordinatesByFormation[startFormationNumber];
+        var endCoordinates = markerCoordinatesByFormation[endFormationNumber];
+
+        // Ensure there are coordinates in both formations
+        if (startCoordinates.length > 0 && endCoordinates.length > 0) {
+            animateMarkersBetweenFormations(startCoordinates, endCoordinates, function () {
+                // Remove markers from the map after reaching the destination
+                removeMarkers(markers);
+                
+                // Display the path between formations
+                displayPathBetweenFormations(startCoordinates, endCoordinates);
+                
+                currentIndex++; // Move to the next pair of formations
+                animateFormationSequence(formationNumbers, currentIndex);
+            });
+        } else {
+            alert("Coordinates are missing for one of the formations. Mission aborted.");
+            return;
+        }
+    }
+}
+
+

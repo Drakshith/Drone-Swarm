@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Buttons with Popups</title>
+    <style>
+        /* Global styles */
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Input field */
+input#inputNumber {
+  padding: 5px;
+  border: 1px solid #ccc;
+  margin-right: 10px;
+}
+
+/* Generate button */
+button {
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 5px;
+}
+
+/* Button container */
+#buttonContainer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Individual buttons */
+.button {
+  margin-right: 10px;
+  margin-bottom: 10px;
+}
+
+/* Popup */
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 200px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 20px;
+  display: none; /* Initially hidden */
+}
+
+/* Input field within popup */
+.popup input {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+/* Submit button within popup */
+.popup button {
+  padding: 5px 10px;
+  border: none;
+  cursor: pointer;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 5px;
+}
+
+    </style>
+</head>
+
+<body>
+    <input type="number" id="inputNumber">
+    <button onclick="generateButtons()">Generate Buttons</button>
+    <div id="buttonContainer"></div>
+
+    <script>
+        function generateButtons() {
+                const inputNumber = document.getElementById('inputNumber').value;
+                const buttonContainer = document.getElementById('buttonContainer');
+
+                // Clear existing buttons
+                buttonContainer.innerHTML = '';
+
+                // Create and append buttons
+                for (let i = 0; i < inputNumber; i++) {
+                    const button = document.createElement('button');
+                    button.textContent = `Button ${i + 1}`;
+                    button.classList.add('button');
+
+                    // Attach popup function
+                    button.addEventListener('click', function () {
+                        const popup = document.createElement('div');
+                        popup.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 300px;
+                height: 100px;
+                background-color: #fff;
+                border: 1px solid #ccc;
+                padding: 20px;
+            `;
+
+                        const inputField = document.createElement('input');
+                        inputField.type = 'text';
+                        inputField.placeholder = 'Enter something';
+
+                        const submitButton = document.createElement('button');
+                        submitButton.textContent = 'Submit';
+                        submitButton.addEventListener('click', function () {
+                            const inputValue = inputField.value;
+                            alert(`Button ${i + 1} clicked! Input value: ${inputValue}`);
+                            popup.parentNode.removeChild(popup); // Close popup
+                        });
+
+                        popup.appendChild(inputField);
+                        popup.appendChild(submitButton);
+
+                        document.body.appendChild(popup); // Display popup
+                    });
+
+                    buttonContainer.appendChild(button);
+                }
+            }
+
+    </script>
+</body>
+
+</html>
